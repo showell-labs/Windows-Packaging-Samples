@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Excel = Microsoft.Office.Interop.Excel;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+
 
 namespace ExcelInterop
 {
@@ -85,7 +87,26 @@ namespace ExcelInterop
                             sh.Cells[i + 2, "C"].Value2 = args.Request.Message["Quantity" + i.ToString()].ToString();
                             sh.Cells[i + 2, "D"].Value2 = args.Request.Message["UnitPrice" + i.ToString()].ToString();
                         }
-                        result = "SUCCESS";
+
+               
+                        wb.ExportAsFixedFormat(Excel.XlFixedFormatType.xlTypePDF, @"C:\Users\juhas\Excel.pdf");
+                        wb.Close();
+
+                        PowerPoint.Application pp = new PowerPoint.Application();
+                        PowerPoint.Presentations pre = pp.Presentations;
+                        PowerPoint.Presentation presentation = pre.Add();
+
+                        PowerPoint.CustomLayout customLayout = presentation.SlideMaster.CustomLayouts[PowerPoint.PpSlideLayout.ppLayoutText];
+                        var slide = presentation.Slides.AddSlide(1, customLayout);
+                        slide.Shapes[1].TextFrame.TextRange.Text = "Final Test";
+                        slide.Shapes[1].TextFrame.TextRange.Font.Name = "Comic Sans MS";
+                        slide.Shapes[1].TextFrame.TextRange.Font.Size = 48;
+
+                        presentation.ExportAsFixedFormat(@"C:\Users\juhas\PowerPoint.pdf",
+                          PowerPoint.PpFixedFormatType.ppFixedFormatTypePDF);
+
+                       result = "SUCCESS";
+
                     }
                     catch (Exception exc)
                     {
